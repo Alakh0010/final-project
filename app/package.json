@@ -1,0 +1,25 @@
+{
+  "name": "quick-query-resolver",
+  "version": "1.0.0",
+  "description": "A streamlined query resolution platform",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run start:frontend",
+    "start:frontend": "cd frontend && npm start",
+    "start:backend": "cd backend && npm start",
+    "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "build": "cd frontend && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+  },
+  "keywords": [
+    "query",
+    "resolution",
+    "support",
+    "helpdesk"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "concurrently": "^7.6.0"
+  }
+}
