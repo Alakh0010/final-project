@@ -301,7 +301,8 @@ const QueryForm: React.FC = () => {
         priority: formData.priority,
         brand: formData.brand || 'Unspecified',
         category: formData.category || 'General',
-        description: formData.query,
+        query: formData.query, // Make sure this matches the server expectation
+        description: formData.query, // Include both for compatibility
         attachment: attachments.length > 0 ? attachments[0].name : ''
       };
       

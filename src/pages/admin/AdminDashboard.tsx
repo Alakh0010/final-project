@@ -134,20 +134,31 @@ const AdminDashboard: React.FC = () => {
   const fetchQueries = useCallback(async () => {
     try {
       setLoading(true);
+      console.log('Fetching queries from backend...');
       // Use the full URL with the localhost address to avoid relative path issues
       const response = await axios.get('http://localhost:3001/api/queries');
+      console.log('Received response:', response.data);
+      
       if (response.data && Array.isArray(response.data)) {
+        console.log(`Found ${response.data.length} queries`);
         setQueries(response.data);
+        setFilteredQueries(response.data); // Make sure filtered queries are also updated
+        
         // Only show toast on successful data update if there are items
         if (response.data.length > 0) {
           showToast('Query data updated', 'info');
         }
+      } else {
+        console.warn('Response data is not an array:', response.data);
+        setQueries([]);
+        setFilteredQueries([]);
       }
     } catch (error) {
       console.error('Error fetching queries:', error);
       showToast('Failed to fetch query data. Make sure the server is running.', 'error');
       // Set empty array for queries
       setQueries([]);
+      setFilteredQueries([]);
     } finally {
       // Always set loading to false to prevent infinite loading state
       setLoading(false);

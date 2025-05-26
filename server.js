@@ -84,6 +84,7 @@ app.post('/api/queries', async (req, res) => {
     
     // Generate a new ID
     const newId = await getNextId();
+    console.log('Generated new ID:', newId);
     
     // Format the new query with admin dashboard compatible fields
     const newQuery = new Query({
@@ -101,15 +102,17 @@ app.post('/api/queries', async (req, res) => {
       lastUpdated: new Date().toISOString().replace('T', ' ').substring(0, 16)
     });
     
-    console.log('Created new query:', newQuery);
+    console.log('Created new query object:', newQuery);
     
     // Save the query to MongoDB
-    await newQuery.save();
+    const savedQuery = await newQuery.save();
+    console.log('Query saved to MongoDB:', savedQuery);
     
-    res.status(201).json(newQuery);
+    // Return the saved query to the client
+    res.status(201).json(savedQuery);
   } catch (error) {
     console.error('Error creating query:', error);
-    res.status(500).json({ error: 'Failed to create query' });
+    res.status(500).json({ error: 'Failed to create query', message: error.message });
   }
 });
 
