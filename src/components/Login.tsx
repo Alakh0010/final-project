@@ -39,7 +39,7 @@ const Login: React.FC = () => {
       <div className="wallpaper wallpaper-1"></div>
       <div className="wallpaper wallpaper-2"></div>
       <div className="wallpaper wallpaper-3"></div>
-      
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -65,7 +65,7 @@ const Login: React.FC = () => {
                 type="text"
                 required
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={e => setUsername(e.target.value)}
                 placeholder="Enter your username"
                 className={styles.inputField}
                 autoComplete="username"
@@ -81,10 +81,10 @@ const Login: React.FC = () => {
               <input
                 id="password"
                 name="password"
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 className={styles.inputField}
                 autoComplete="current-password"
@@ -111,11 +111,7 @@ const Login: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className={styles.errorMessage}
             >
-              <svg
-                className={styles.errorIcon}
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
+              <svg className={styles.errorIcon} viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -127,11 +123,7 @@ const Login: React.FC = () => {
             </motion.div>
           )}
 
-          <button
-            type="submit"
-            className={styles.loginButton}
-            disabled={isLoading}
-          >
+          <button type="submit" className={styles.loginButton} disabled={isLoading}>
             {isLoading ? (
               <>
                 <svg
@@ -139,12 +131,7 @@ const Login: React.FC = () => {
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                 >
-                  <circle
-                    className={styles.spinnerCircle}
-                    cx="12"
-                    cy="12"
-                    r="10"
-                  ></circle>
+                  <circle className={styles.spinnerCircle} cx="12" cy="12" r="10"></circle>
                 </svg>
                 Signing in...
               </>

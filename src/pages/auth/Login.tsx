@@ -22,14 +22,38 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Login form submitted');
     setError('');
     setIsLoading(true);
 
     try {
-      await login(username, password);
-      navigate('/');
+      console.log('Calling login function with:', { username, password });
+      const success = await login(username, password);
+      console.log('Login result:', { success });
+      
+      if (success) {
+        console.log('Login successful, checking user role');
+        
+        // Small delay to ensure state is updated
+        setTimeout(() => {
+          // Check if it's an admin login
+          if (username.includes('@admin.')) {
+            console.log('Admin login detected, redirecting to admin dashboard');
+            navigate('/admin', { replace: true });
+          } else {
+            console.log('Customer login detected, redirecting to query form');
+            navigate('/query', { replace: true });
+          }
+        }, 100);
+      } else {
+        console.error('Login failed: Invalid credentials');
+        setError('Invalid email or password');
+      }
     } catch (err) {
-      setError('Invalid email or password&apos;s');
+      console.error('Login error:', err);
+      setError('An error occurred during login');
+    } finally {
+      console.log('Login attempt completed');
       setIsLoading(false);
     }
   };
@@ -39,7 +63,7 @@ const Login: React.FC = () => {
       <div className="wallpaper wallpaper-1"></div>
       <div className="wallpaper wallpaper-2"></div>
       <div className="wallpaper wallpaper-3"></div>
-      
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -65,7 +89,7 @@ const Login: React.FC = () => {
                 type="text"
                 required
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={e => setUsername(e.target.value)}
                 placeholder="Enter your username"
                 className={styles.inputField}
                 autoComplete="username"
@@ -81,10 +105,10 @@ const Login: React.FC = () => {
               <input
                 id="password"
                 name="password"
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 className={styles.inputField}
                 autoComplete="current-password"
@@ -111,11 +135,7 @@ const Login: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className={styles.errorMessage}
             >
-              <svg
-                className={styles.errorIcon}
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
+              <svg className={styles.errorIcon} viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -127,11 +147,7 @@ const Login: React.FC = () => {
             </motion.div>
           )}
 
-          <button
-            type="submit"
-            className={styles.loginButton}
-            disabled={isLoading}
-          >
+          <button type="submit" className={styles.loginButton} disabled={isLoading}>
             {isLoading ? (
               <>
                 <svg
@@ -139,12 +155,7 @@ const Login: React.FC = () => {
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                 >
-                  <circle
-                    className={styles.spinnerCircle}
-                    cx="12"
-                    cy="12"
-                    r="10"
-                  ></circle>
+                  <circle className={styles.spinnerCircle} cx="12" cy="12" r="10"></circle>
                 </svg>
                 Signing in...
               </>
@@ -178,4 +189,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login; 
+export default Login;

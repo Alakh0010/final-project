@@ -1,78 +1,58 @@
 const mongoose = require('mongoose');
 
 const QuerySchema = new mongoose.Schema({
-  title: {
+  name: {
     type: String,
-    required: [true, 'Title is required'],
-    trim: true
+    required: [true, 'Please add a name']
   },
-  description: {
+  email: {
     type: String,
-    required: [true, 'Description is required'],
-    trim: true
+    required: [true, 'Please add an email'],
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      'Please add a valid email'
+    ]
   },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+  subject: {
+    type: String,
+    required: [true, 'Please add a subject'],
+    maxlength: [100, 'Subject cannot be more than 100 characters']
+  },
+  message: {
+    type: String,
+    required: [true, 'Please add a message']
   },
   status: {
     type: String,
-    enum: ['pending', 'in-progress', 'resolved', 'closed'],
+    enum: ['pending', 'in-progress', 'resolved'],
     default: 'pending'
   },
   priority: {
     type: String,
-    enum: ['low', 'medium', 'high', 'urgent'],
+    enum: ['low', 'medium', 'high'],
     default: 'medium'
   },
   category: {
     type: String,
-    required: [true, 'Category is required'],
-    trim: true
+    required: false
   },
-  assignedTo: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+  brand: {
+    type: String,
+    required: false
   },
   attachments: [{
-    filename: String,
-    path: String,
-    mimetype: String,
-    size: Number
+    url: String,
+    filename: String
   }],
-  comments: [{
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    },
-    text: {
-      type: String,
-      required: true
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    required: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  },
-  resolvedAt: {
-    type: Date
   }
-}, {
-  timestamps: true
 });
 
-// Add text index for search functionality
-QuerySchema.index({ title: 'text', description: 'text' });
-
-const Query = mongoose.model('Query', QuerySchema);
-
-module.exports = Query;
+module.exports = mongoose.model('Query', QuerySchema);

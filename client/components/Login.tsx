@@ -5,9 +5,9 @@ import { motion } from 'framer-motion';
 import {
   UserIcon,
   LockClosedIcon,
-  ShieldCheckIcon,
   EyeIcon,
   EyeSlashIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import styles from './Login.module.css';
 
@@ -35,30 +35,23 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className={styles.loginPage}>
-      <div className="wallpaper wallpaper-1"></div>
-      <div className="wallpaper wallpaper-2"></div>
-      <div className="wallpaper wallpaper-3"></div>
-      
+    <div className={styles.loginContainer}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className={styles.loginContainer}
+        className={styles.form}
       >
-        <div className={styles.loginHeader}>
-          <div className={styles.iconWrapper}>
-            <UserIcon className={styles.icon} />
-          </div>
-          <h2>Quick Query Resolver</h2>
-          <p>Sign in to your account to continue</p>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <h2>Welcome Back</h2>
+          <p style={{ color: '#666' }}>Please sign in to your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className={styles.loginForm}>
-          <div className={styles.formGroup}>
-            <label htmlFor="username">Username</label>
-            <div className={styles.inputWrapper}>
-              <UserIcon className={styles.inputIcon} />
+        <form onSubmit={handleSubmit}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="username" className={styles.label}>Username</label>
+            <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+              <UserIcon style={{ position: 'absolute', left: '10px', height: '20px', width: '20px', color: '#666' }} />
               <input
                 id="username"
                 name="username"
@@ -67,17 +60,18 @@ const Login: React.FC = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
-                className={styles.inputField}
+                className={styles.input}
                 autoComplete="username"
                 disabled={isLoading}
+                style={{ paddingLeft: '40px' }}
               />
             </div>
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="password">Password</label>
-            <div className={styles.inputWrapper}>
-              <LockClosedIcon className={styles.inputIcon} />
+          <div className={styles.inputGroup}>
+            <label htmlFor="password" className={styles.label}>Password</label>
+            <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+              <LockClosedIcon style={{ position: 'absolute', left: '10px', height: '20px', width: '20px', color: '#666' }} />
               <input
                 id="password"
                 name="password"
@@ -86,50 +80,38 @@ const Login: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                className={styles.inputField}
+                className={styles.input}
                 autoComplete="current-password"
                 disabled={isLoading}
+                style={{ paddingLeft: '40px', paddingRight: '40px' }}
               />
               <button
                 type="button"
-                className={styles.passwordToggle}
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isLoading}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#666'
+                }}
               >
                 {showPassword ? (
-                  <EyeSlashIcon className={styles.toggleIcon} />
+                  <EyeSlashIcon style={{ height: '20px', width: '20px' }} />
                 ) : (
-                  <EyeIcon className={styles.toggleIcon} />
+                  <EyeIcon style={{ height: '20px', width: '20px' }} />
                 )}
               </button>
             </div>
           </div>
 
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={styles.errorMessage}
-            >
-              <svg
-                className={styles.errorIcon}
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              {error}
-            </motion.div>
-          )}
+          {error && <div className={styles.error}>{error}</div>}
 
           <button
             type="submit"
-            className={styles.loginButton}
+            className={styles.button}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -138,41 +120,92 @@ const Login: React.FC = () => {
                   className={styles.spinner}
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                    marginRight: '8px',
+                    animation: 'spin 1s linear infinite'
+                  }}
                 >
                   <circle
                     className={styles.spinnerCircle}
                     cx="12"
                     cy="12"
                     r="10"
-                  ></circle>
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    style={{
+                      strokeDasharray: '31.4',
+                      strokeDashoffset: '15.7',
+                      strokeLinecap: 'round'
+                    }}
+                  />
                 </svg>
                 Signing in...
               </>
             ) : (
-              'Sign in'
+              'Sign In'
             )}
           </button>
 
-          <div className={styles.divider}>
-            <span>or</span>
+          <div style={{ margin: '1.5rem 0', textAlign: 'center', position: 'relative' }}>
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: 0,
+              right: 0,
+              height: '1px',
+              backgroundColor: '#eaeaea',
+              zIndex: 1
+            }} />
+            <span style={{
+              position: 'relative',
+              zIndex: 2,
+              backgroundColor: 'white',
+              padding: '0 1rem',
+              color: '#666',
+              fontSize: '0.9rem'
+            }}>
+              or
+            </span>
           </div>
 
-          <Link to="/admin-login" className={styles.adminButton}>
-            <ShieldCheckIcon className={styles.adminIcon} />
+          <Link 
+            to="/admin-login" 
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem',
+              border: '1px solid #eaeaea',
+              borderRadius: '4px',
+              backgroundColor: 'white',
+              color: '#333',
+              textDecoration: 'none',
+              marginTop: '1rem',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = '#f8f8f8';
+              e.currentTarget.style.borderColor = '#ddd';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = 'white';
+              e.currentTarget.style.borderColor = '#eaeaea';
+            }}
+          >
+            <ShieldCheckIcon style={{ height: '20px', width: '20px' }} />
             Admin Portal
           </Link>
         </form>
 
-        <p className={styles.signupText}>
-          Don't have an account?{' '}
-          <Link to="/signup" className={styles.signupLink}>
-            Create one now
-          </Link>
-        </p>
-
-        <p className={styles.copyright}>
-          © {new Date().getFullYear()} Quick Query Resolver. All rights reserved.
-        </p>
+        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.9rem', color: '#666' }}>
+            © {new Date().getFullYear()} Quick Query Resolver. All rights reserved.
+          </p>
+        </div>
       </motion.div>
     </div>
   );

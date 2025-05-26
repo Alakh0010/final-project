@@ -1,5 +1,7 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
 import { 
   PaperClipIcon, 
   PhoneIcon, 
@@ -22,6 +24,7 @@ import styles from './QueryForm.module.css';
 interface Query {
   id: string;
   name: string;
+  email?: string;
   category: string;
   status: 'pending' | 'in-progress' | 'resolved';
   createdAt: string;
@@ -49,19 +52,28 @@ interface FormErrors {
 }
 
 const QueryForm: React.FC = () => {
+  // All hooks must be called at the top level, before any conditional returns
+  const { isAuthenticated, userName, userEmail, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // State declarations
+  const [queries, setQueries] = useState<Query[]>([]);
+  const [showError, setShowError] = useState('');
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     query: '',
     category: '',
-    priority: 'medium',
-    brand: ''
+    brand: '',
+    priority: 'medium' as 'low' | 'medium' | 'high',
   });
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
   const [selectedQuery, setSelectedQuery] = useState<Query | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showFAQ, setShowFAQ] = useState(false);
@@ -70,21 +82,19 @@ const QueryForm: React.FC = () => {
   const [showQuickFAQ, setShowQuickFAQ] = useState(false);
   const [selectedQuickFAQ, setSelectedQuickFAQ] = useState<FAQ | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
-
-  // List of available brands
-  const brands = [
-    'Apple',
-    'Samsung',
-    'Sony',
-    'Microsoft',
-    'Google',
-    'Amazon',
-    'Dell',
-    'HP',
-    'Lenovo',
-    'Other'
-  ];
-
+  
+  // Initialize form data with user info when available
+  useEffect(() => {
+    if (userName || userEmail) {
+      setFormData(prev => ({
+        ...prev,
+        name: userName || '',
+        email: userEmail || ''
+      }));
+    }
+  }, [userName, userEmail]);
+  
+  // Initialize submitted queries
   const [submittedQueries, setSubmittedQueries] = useState<Query[]>([
     {
       id: '1',
@@ -129,7 +139,7 @@ const QueryForm: React.FC = () => {
           message: 'Query submitted'
         },
         {
-          date: '2024-03-20T13:15:00Z',
+          date: '2024-03-20T12:15:00Z',
           status: 'in-progress',
           message: 'Billing team is reviewing the invoice'
         }
@@ -137,22 +147,52 @@ const QueryForm: React.FC = () => {
     },
     {
       id: '3',
-      name: 'Mike Johnson',
-      category: 'Product Inquiry',
+      name: 'Alice Johnson',
+      category: 'Technical Support',
       status: 'pending',
-      createdAt: '2024-03-20T12:15:00Z',
+      createdAt: '2024-03-21T09:15:00Z',
       priority: 'low',
-      description: 'Information about product specifications and availability',
+      description: 'Need help with setting up email on my phone',
       brand: 'Samsung',
       updates: [
         {
-          date: '2024-03-20T12:15:00Z',
+          date: '2024-03-21T09:15:00Z',
           status: 'pending',
           message: 'Query submitted'
         }
       ]
     }
   ]);
+
+  // List of available brands
+  const brands = [
+    'Apple',
+    'Samsung',
+    'Sony',
+    'Microsoft',
+    'Google',
+    'Amazon',
+    'Dell',
+    'HP',
+    'Lenovo',
+    'Other'
+  ];
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate('/login', { state: { from: location.pathname } });
+    }
+  }, [isAuthenticated, loading, navigate, location]);
+  
+  // Show loading state while checking auth
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   const faqs: FAQ[] = [
     {
@@ -251,16 +291,79 @@ const QueryForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Form submitted:', { ...formData, attachments });
+      // Set up the API endpoint with the full URL
+      const apiUrl = 'http://localhost:3001/api/queries';
+      
+      // Format the data to match what the MongoDB schema expects
+      const formattedQuery = {
+        name: formData.name,
+        email: formData.email || userEmail || '',
+        priority: formData.priority,
+        brand: formData.brand || 'Unspecified',
+        category: formData.category || 'General',
+        description: formData.query,
+        attachment: attachments.length > 0 ? attachments[0].name : ''
+      };
+      
+      console.log('Submitting query to MongoDB:', formattedQuery);
+      
+      // Send the query data to the API
+      const response = await axios.post(apiUrl, formattedQuery);
+      console.log('Query submitted successfully to MongoDB:', response.data);
+      
+      // Show success message
+      console.log(`Query #${response.data.id} submitted successfully`);
       setShowSuccess(true);
       
-      // Wait for animation to complete before redirecting
+      // Create a local query object for UI display if needed
+      const newQuery: Query = {
+        id: response.data.id.toString(),
+        name: formData.name,
+        email: formData.email || userEmail || '',
+        category: formData.category || 'General',
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        priority: formData.priority as 'low' | 'medium' | 'high',
+        description: formData.query,
+        brand: formData.brand || 'Unspecified',
+        updates: [
+          {
+            date: new Date().toISOString(),
+            status: 'created',
+            message: `Query submitted by ${formData.name || 'user'}`
+          }
+        ]
+      };
+      
+      // Add to local state for immediate UI feedback
+      setQueries(prevQueries => [newQuery, ...prevQueries]);
+      
+      // Reset form
+      setFormData({
+        name: userName || '',
+        email: userEmail || '',
+        query: '',
+        category: '',
+        brand: '',
+        priority: 'medium',
+      });
+      
+      // Clear attachments
+      setAttachments([]);
+      
+      // Show success popup
+      setShowSuccessPopup(true);
+      
+      // Hide popup and navigate after delay
       setTimeout(() => {
+        setShowSuccessPopup(false);
         navigate('/success');
-      }, 2000);
+      }, 3000);
     } catch (error) {
       console.error('Error submitting form:', error);
+      // Show error message to user
+      setShowError('Failed to submit query. Please try again.');
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -315,6 +418,48 @@ const QueryForm: React.FC = () => {
     setSelectedQuery(null);
   };
 
+  // Close popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      
+      // Check if click is outside FAQ modal
+      if (showFAQ) {
+        const faqModal = document.querySelector(`.${styles.faqModal}`);
+        if (faqModal && !faqModal.contains(target)) {
+          setShowFAQ(false);
+          return;
+        }
+      }
+      
+      // Check if click is outside Quick FAQ modal
+      if (showQuickFAQ) {
+        const quickFaqModal = document.querySelector(`.${styles.quickFAQModal}`);
+        if (quickFaqModal && !quickFaqModal.contains(target)) {
+          setShowQuickFAQ(false);
+          return;
+        }
+      }
+      
+      // Check if click is outside Query Details modal
+      if (showDetails) {
+        const detailsModal = document.querySelector(`.${styles.detailsModal}`);
+        if (detailsModal && !detailsModal.contains(target)) {
+          handleCloseDetails();
+        }
+      }
+    };
+
+    // Add event listener if any modal is open
+    if (showDetails || showFAQ || showQuickFAQ) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDetails, showFAQ, showQuickFAQ, handleCloseDetails]);
+
   const handleFAQClick = (index: number) => {
     setExpandedFAQ(expandedFAQ === index ? null : index);
   };
@@ -329,17 +474,44 @@ const QueryForm: React.FC = () => {
     setShowQuickFAQ(true);
   };
 
+  const handleLogout = async () => {
+    // Add your logout logic here
+    console.log('Logging out...');
+    // Example: await logout();
+    navigate('/login');
+  };
+
   return (
+    <div>
+      {/* Header with back button, customer name, and logout button */}
+      <header className={styles.header}>
+        <button 
+          onClick={() => window.history.back()} 
+          className={styles.backButton}
+        >
+          &larr; Back
+        </button>
+        
+        <div className={styles.customerName}>
+          {userName ? `Welcome, ${userName}` : 'Welcome'}
+        </div>
+        
+        <button 
+          onClick={handleLogout} 
+          className={styles.logoutButton}
+        >
+          Logout
+        </button>
+      </header>
+    
     <div className={styles.pageContainer}>
       <div className={styles.formContainer}>
         {showSuccess ? (
           <div className={styles.successOverlay}>
             <div className={styles.successMessage}>
-              <div className={styles.successContent}>
-                <CheckCircleIcon className={styles.successIcon} />
-                <h3>Query Submitted Successfully!</h3>
-                <p>Thank you for your submission. We&apos;ll get back to you soon.</p>
-              </div>
+              <CheckCircleIcon className={styles.successIcon} />
+              <h3>Query Submitted Successfully!</h3>
+              <p>Thank you for your submission. We&apos;ll get back to you soon.</p>
             </div>
           </div>
         ) : (
@@ -501,10 +673,31 @@ const QueryForm: React.FC = () => {
 
         <div className={styles.infoCards}>
           <div className={styles.infoCard}>
-            <PhoneIcon className={styles.fileIcon} />
-            <h3>Need Help?</h3>
-            <p>Our support team is available 24/7 to assist you with any questions or concerns.</p>
-            <a href="tel:+1234567890">+1 (234) 567-890</a>
+            <div className={styles.helpHeader}>
+              <PhoneIcon className={styles.helpIcon} />
+              <h3>Need Help?</h3>
+            </div>
+            <div className={styles.helpContent}>
+              <div className={styles.helpItem}>
+                <span className={styles.helpLabel}>24/7 Support:</span>
+                <a href="tel:+918888888888" className={styles.helpValue}>+91 8888888888</a>
+              </div>
+              <div className={styles.helpItem}>
+                <span className={styles.helpLabel}>Email:</span>
+                <a href="mailto:support@QuickQueryResolver.com" className={styles.helpValue}>support@QuickQueryResolver.com</a>
+              </div>
+              <div className={styles.helpItem}>
+                <span className={styles.helpLabel}>Business Hours:</span>
+                <span className={styles.helpValue}>Mon-Sun, 24/7</span>
+              </div>
+              <div className={styles.helpItem}>
+                <span className={styles.helpLabel}>Response Time:</span>
+                <span className={styles.helpValue}>Within 30 minutes</span>
+              </div>
+            </div>
+            <div className={styles.helpFooter}>
+              <span className={styles.helpNote}>We're here to help you 24/7</span>
+            </div>
           </div>
           
           <div className={styles.infoCard}>
@@ -573,7 +766,7 @@ const QueryForm: React.FC = () => {
       </div>
 
       {showDetails && selectedQuery && (
-        <div className={styles.detailsOverlay}>
+        <div className={styles.detailsOverlay} onClick={(e) => e.stopPropagation()}>
           <div className={styles.detailsModal}>
             <div className={styles.detailsHeader}>
               <h2>Query Details</h2>
@@ -699,6 +892,20 @@ const QueryForm: React.FC = () => {
         </div>
       )}
 
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <div className={styles.successPopupOverlay}>
+          <div className={styles.successPopup}>
+            <div className={styles.successPopupIcon}>
+              <CheckCircleIcon />
+            </div>
+            <h3>Query Submitted Successfully!</h3>
+            <p>Your query has been received and is being processed.</p>
+            <p>Redirecting to success page...</p>
+          </div>
+        </div>
+      )}
+
       {showFAQ && (
         <div className={styles.faqOverlay}>
           <div className={styles.faqModal}>
@@ -749,9 +956,9 @@ const QueryForm: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
 
 export default QueryForm;
-

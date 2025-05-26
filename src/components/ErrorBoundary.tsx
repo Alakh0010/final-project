@@ -13,7 +13,7 @@ interface State {
 class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
-    error: null
+    error: null,
   };
 
   public static getDerivedStateFromError(error: Error): State {
@@ -26,11 +26,13 @@ class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      return this.props.fallback || (
-        <div className="p-4 bg-red-50 text-red-700 rounded">
-          <h2 className="text-lg font-bold">Something went wrong</h2>
-          <p>{this.state.error?.message}</p>
-        </div>
+      return (
+        this.props.fallback || (
+          <div className="p-4 bg-red-50 text-red-700 rounded">
+            <h2 className="text-lg font-bold">Something went wrong</h2>
+            <p>{this.state.error?.message}</p>
+          </div>
+        )
       );
     }
 

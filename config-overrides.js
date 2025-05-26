@@ -49,17 +49,13 @@ module.exports = function override(config, env) {
     });
   }
 
-  // Add aliases for client directory structure
-  config = addWebpackAlias({
-    '@client': path.resolve(__dirname, 'client'),
-    '@components': path.resolve(__dirname, 'client/components'),
-    '@pages': path.resolve(__dirname, 'client/pages'),
-    '@services': path.resolve(__dirname, 'client/services'),
-    '@styles': path.resolve(__dirname, 'client/styles'),
-    '@utils': path.resolve(__dirname, 'client/utils'),
-    '@shared': path.resolve(__dirname, 'client/shared'),
-    '@context': path.resolve(__dirname, 'client/context')
+  // Add webpack aliases
+  return addWebpackAlias({
+    '@': path.resolve(__dirname, 'src'),
+    '@components': path.resolve(__dirname, 'src/components'),
+    '@pages': path.resolve(__dirname, 'src/pages'),
+    '@utils': path.resolve(__dirname, 'src/utils'),
+    '@hooks': path.resolve(__dirname, 'src/hooks'),
+    '@context': path.resolve(__dirname, 'src/context'),
   })(config);
-
-  return config;
 };

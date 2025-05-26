@@ -18,11 +18,7 @@ export const getItem = <T>(key: string, type: StorageType = 'local'): T | null =
   }
 };
 
-export const setItem = <T>(
-  key: string,
-  value: T,
-  type: StorageType = 'local'
-): void => {
+export const setItem = <T>(key: string, value: T, type: StorageType = 'local'): void => {
   try {
     const storage = getStorage(type);
     storage.setItem(key, JSON.stringify(value));

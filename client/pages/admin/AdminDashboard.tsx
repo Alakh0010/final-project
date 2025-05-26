@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './AdminDashboard.module.css';
+import { queryService } from '../../services/api';
 import {
   ChartBarIcon,
   ClockIcon,
@@ -24,6 +25,22 @@ import {
   TrashIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
+
+// Add status badge styles
+const statusStyles = {
+  pending: 'bg-yellow-100 text-yellow-800',
+  'in-progress': 'bg-blue-100 text-blue-800',
+  resolved: 'bg-green-100 text-green-800',
+  closed: 'bg-gray-100 text-gray-800'
+};
+
+// Add priority badge styles
+const priorityStyles = {
+  low: 'bg-gray-100 text-gray-800',
+  medium: 'bg-blue-100 text-blue-800',
+  high: 'bg-yellow-100 text-yellow-800',
+  urgent: 'bg-red-100 text-red-800'
+};
 
 interface IQuery {
   _id: string;
@@ -95,9 +112,9 @@ const AdminDashboard: React.FC = () => {
   const [showContactSupportPopup, setShowContactSupportPopup] = useState(false);
   
   // Refs for popup handling
-  const notificationsPanelRef = useRef<HTMLDivElement>(null);
-  const notificationButtonRef = useRef<HTMLButtonElement>(null);
-  const popupRef = useRef<HTMLDivElement>(null);
+  const notificationsPanelRef = React.useRef<HTMLDivElement>(null);
+  const notificationButtonRef = React.useRef<HTMLButtonElement>(null);
+  const popupRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -601,6 +618,29 @@ const AdminDashboard: React.FC = () => {
     };
   }, []);
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = useState<string>('all');
+
+  const filteredQueriesList = queries.filter(query => {
+    const matchesSearch = query.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        query.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || query.status === statusFilter;
+    const matchesPriority = priorityFilter === 'all' || query.priority === priorityFilter;
+    
+    return matchesSearch && matchesStatus && matchesPriority;
+  });
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div className={styles.dashboardContainer}>
       {/* Sidebar */}
@@ -687,9 +727,174 @@ const AdminDashboard: React.FC = () => {
             <div className={styles.userAvatar}>
               <UserIcon width={24} height={24} />
             </div>
-            <div className={styles.userInfo}>
-              <div className={styles.userName}>Admin User</div>
-              <div className={styles.userRole}>Administrator</div>
+            <div className="flex-1 p-8">
+              <div className="flex justify-between items-center mb-8">
+                <h1 className="text-2xl font-bold text-gray-800">Customer Queries</h1>
+                <div className="flex space-x-4">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search queries..."
+                      className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <select
+                    className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                  <select
+                    className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={priorityFilter}
+                    onChange={(e) => setPriorityFilter(e.target.value)}
+                  >
+                    <option value="all">All Priorities</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                  </select>
+                </div>
+              </div>
+              
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <div className="flex items-center">
+                    <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+                      <DocumentTextIcon className="h-6 w-6" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-gray-500 text-sm font-medium">Total Queries</h3>
+                      <p className="text-2xl font-semibold">{queries.length}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <div className="flex items-center">
+                    <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                      <ClockIcon className="h-6 w-6" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-gray-500 text-sm font-medium">Pending</h3>
+                      <p className="text-2xl font-semibold">{queries.filter(q => q.status === 'pending').length}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <div className="flex items-center">
+                    <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+                      <ArrowPathIcon className="h-6 w-6" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-gray-500 text-sm font-medium">In Progress</h3>
+                      <p className="text-2xl font-semibold">{queries.filter(q => q.status === 'in-progress').length}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <div className="flex items-center">
+                    <div className="p-3 rounded-full bg-green-100 text-green-600">
+                      <CheckCircleIcon className="h-6 w-6" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-gray-500 text-sm font-medium">Resolved</h3>
+                      <p className="text-2xl font-semibold">{queries.filter(q => q.status === 'resolved').length}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Queries Table */}
+              <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Title
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Submitted By
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Priority
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Date
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredQueriesList.length > 0 ? (
+                        filteredQueriesList.map((query) => (
+                          <tr key={query._id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900">{query.title}</div>
+                              <div className="text-sm text-gray-500 truncate max-w-xs">{query.description}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-gray-100 rounded-full">
+                                  <UserIcon className="h-6 w-6 text-gray-400" />
+                                </div>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {typeof query.submittedBy === 'object' && query.submittedBy?.name}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {typeof query.submittedBy === 'object' && query.submittedBy?.email}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusStyles[query.status as keyof typeof statusStyles]}`}>
+                                {query.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${priorityStyles[query.priority as keyof typeof priorityStyles]}`}>
+                                {query.priority}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {formatDate(query.createdAt)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              <button className="text-blue-600 hover:text-blue-900 mr-4">View</button>
+                              <button className="text-indigo-600 hover:text-indigo-900">Edit</button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                            No queries found
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
           <button className={styles.logoutButton} onClick={handleLogout}>

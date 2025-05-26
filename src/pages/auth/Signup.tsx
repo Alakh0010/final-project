@@ -46,7 +46,7 @@ const Signup: React.FC = () => {
               type="text"
               id="username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={e => setUsername(e.target.value)}
               required
             />
           </div>
@@ -56,7 +56,7 @@ const Signup: React.FC = () => {
               type="email"
               id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               required
             />
           </div>
@@ -66,7 +66,7 @@ const Signup: React.FC = () => {
               type="tel"
               id="phone"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={e => setPhone(e.target.value)}
               required
             />
           </div>
@@ -76,7 +76,7 @@ const Signup: React.FC = () => {
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               required
             />
           </div>
@@ -86,7 +86,7 @@ const Signup: React.FC = () => {
               type="password"
               id="confirmPassword"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={e => setConfirmPassword(e.target.value)}
               required
             />
           </div>
@@ -102,4 +102,4 @@ const Signup: React.FC = () => {
   );
 };
 
-export default Signup; 
+export default Signup;

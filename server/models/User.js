@@ -1,69 +1,60 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Name is required'],
-    trim: true
+    required: [true, 'Please add a name']
   },
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    required: [true, 'Please add an email'],
     unique: true,
-    trim: true,
-    lowercase: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email']
-  },
-  password: {
-    type: String,
-    required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters']
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      'Please add a valid email'
+    ]
   },
   role: {
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
   },
-  avatar: {
-    type: String
-  },
-  department: {
+  password: {
     type: String,
-    trim: true
+    required: [true, 'Please add a password'],
+    minlength: 6,
+    select: false
   },
+  resetPasswordToken: String,
+  resetPasswordExpire: Date,
   createdAt: {
     type: Date,
     default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
   }
-}, {
-  timestamps: true
 });
 
-// Hash password before saving
+// Encrypt password using bcrypt
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
-    return next();
-  }
-  
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
     next();
-  } catch (error) {
-    next(error);
   }
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Method to check if password matches
+// Sign JWT and return
+UserSchema.methods.getSignedJwtToken = function() {
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE
+  });
+};
+
+// Match user entered password to hashed password in database
 UserSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model('User', UserSchema);
-
-module.exports = User;
+module.exports = mongoose.model('User', UserSchema);

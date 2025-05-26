@@ -41,7 +41,8 @@ const useResponsive = () => {
   }, []);
 
   const isMobile = (windowSize.width || 0) < breakpoints.md;
-  const isTablet = (windowSize.width || 0) >= breakpoints.md && (windowSize.width || 0) < breakpoints.lg;
+  const isTablet =
+    (windowSize.width || 0) >= breakpoints.md && (windowSize.width || 0) < breakpoints.lg;
   const isDesktop = (windowSize.width || 0) >= breakpoints.lg;
 
   const isBreakpoint = (breakpoint: Breakpoint) => {

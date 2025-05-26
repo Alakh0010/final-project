@@ -9,6 +9,7 @@ export interface IUser {
   avatar?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  __v?: number; // For MongoDB versioning
 }
 
 export interface IQuery {

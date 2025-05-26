@@ -1,14 +1,62 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { 
+  CheckCircleIcon, 
+  ArrowRightIcon, 
+  DocumentDuplicateIcon,
+  ArrowLeftOnRectangleIcon 
+} from '@heroicons/react/24/outline';
+import { useAuth } from '../../context/AuthContext';
+
+interface SuccessPageState {
+  message?: string;
+  queryId?: string;
+}
 import styles from './SuccessPage.module.css';
 
 const SuccessPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { logout } = useAuth();
+  const state = location.state as SuccessPageState | undefined;
+  
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+  
+  const defaultMessage = 'Your query has been received. We\'ll get back to you soon.';
+  const message = state?.message || defaultMessage;
+  const queryId = state?.queryId;
+  
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        // You can add a toast notification here if you want
+        console.log('Copied to clipboard');
+      },
+      (err) => {
+        console.error('Could not copy text: ', err);
+      }
+    );
+  };
 
   return (
     <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.headerContent}>
+          <h1 className={styles.headerTitle}>QuickQueryResolver</h1>
+          <button 
+            onClick={handleLogout} 
+            className={styles.logoutButton}
+            title="Logout"
+          >
+            <ArrowLeftOnRectangleIcon className={styles.logoutIcon} />
+            <span>Logout</span>
+          </button>
+        </div>
+      </header>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -18,7 +66,7 @@ const SuccessPage: React.FC = () => {
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+          transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
           className={styles.iconWrapper}
         >
           <CheckCircleIcon className={styles.icon} />
@@ -26,14 +74,30 @@ const SuccessPage: React.FC = () => {
 
         <h1 className={styles.title}>Query Submitted Successfully!</h1>
         <p className={styles.message}>
-          Your query has been received. We&apos;ll get back to you soon. Thank you for your submission. Our team will review your query and get back to you within 24 hours.
+          {message}
         </p>
+        
+        {queryId && (
+          <div className={styles.queryIdContainer}>
+            <span className={styles.queryIdLabel}>Query ID:</span>
+            <div className={styles.queryIdWrapper}>
+              <code className={styles.queryId}>{queryId}</code>
+              <button 
+                onClick={() => copyToClipboard(queryId)}
+                className={styles.copyButton}
+                title="Copy to clipboard"
+              >
+                <DocumentDuplicateIcon className={styles.copyIcon} />
+              </button>
+            </div>
+            <p className={styles.note}>
+              Please keep this ID for future reference.
+            </p>
+          </div>
+        )}
 
         <div className={styles.actions}>
-          <button
-            onClick={() => navigate('/')}
-            className={styles.submitAnotherButton}
-          >
+          <button onClick={() => navigate('/')} className={styles.submitAnotherButton}>
             Submit Another Query
             <ArrowRightIcon className={styles.arrowIcon} />
           </button>
@@ -70,4 +134,4 @@ const SuccessPage: React.FC = () => {
   );
 };
 
-export default SuccessPage; 
+export default SuccessPage;

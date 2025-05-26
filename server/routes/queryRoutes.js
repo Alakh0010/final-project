@@ -1,26 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const { 
+const {
   getQueries,
   getQueryById,
   createQuery,
   updateQuery,
-  deleteQuery,
-  addComment
+  deleteQuery
 } = require('../controllers/queryController');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/auth');
 
-// All routes are protected
-router.route('/')
-  .get(protect, getQueries)
-  .post(protect, createQuery);
+// Public routes
+router.post('/', createQuery);
 
-router.route('/:id')
-  .get(protect, getQueryById)
-  .put(protect, updateQuery)
-  .delete(protect, deleteQuery);
+// Protected routes (require authentication)
+router.get('/:id', protect, getQueryById);
 
-router.route('/:id/comments')
-  .post(protect, addComment);
+// Admin routes (require admin role)
+router.get('/', protect, authorize('admin'), getQueries);
+router.put('/:id', protect, authorize('admin'), updateQuery);
+router.delete('/:id', protect, authorize('admin'), deleteQuery);
 
 module.exports = router;

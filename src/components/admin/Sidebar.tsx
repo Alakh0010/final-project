@@ -20,7 +20,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, activeTab, onTabChange, onLogout }) => {
   const location = useLocation();
-  
+
   const menuItems = [
     { id: 'dashboard', icon: ChartBarIcon, label: 'Dashboard' },
     { id: 'queries', icon: DocumentTextIcon, label: 'Queries' },
@@ -29,7 +29,9 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, activeTab, onTabChange, on
   ];
 
   return (
-    <div className={`bg-gray-900 text-white h-screen flex flex-col transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'}`}>
+    <div
+      className={`bg-gray-900 text-white h-screen flex flex-col transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'}`}
+    >
       <div className="p-4 flex items-center justify-between border-b border-gray-700">
         {!collapsed && <h1 className="text-xl font-bold">Quick Query</h1>}
         <button
@@ -39,10 +41,10 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, activeTab, onTabChange, on
           {collapsed ? '→' : '←'}
         </button>
       </div>
-      
+
       <nav className="flex-1 overflow-y-auto p-2">
         <ul className="space-y-1">
-          {menuItems.map((item) => (
+          {menuItems.map(item => (
             <li key={item.id}>
               <Link
                 to={`/admin#${item.id}`}
@@ -60,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, activeTab, onTabChange, on
           ))}
         </ul>
       </nav>
-      
+
       <div className="p-4 border-t border-gray-700">
         <button
           onClick={onLogout}

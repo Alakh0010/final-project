@@ -11,7 +11,9 @@ interface EnvConfig {
 const defaultConfig: EnvConfig = {
   NODE_ENV: 'development',
   REACT_APP_API_URL: 'http://localhost:5000/api',
-  MONGODB_URI: process.env.REACT_APP_MONGODB_URI || 'mongodb+srv://alakh001:Alakh8613@cluster0.haxjqnv.mongodb.net',
+  MONGODB_URI:
+    process.env.REACT_APP_MONGODB_URI ||
+    'mongodb+srv://alakh001:Alakh8613@cluster0.haxjqnv.mongodb.net',
   MONGODB_DB_NAME: process.env.REACT_APP_MONGODB_DB_NAME || 'query_resolver',
 };
 
@@ -26,14 +28,10 @@ export const config = {
 
 // Validate required environment variables in production
 if (config.isProduction) {
-  const requiredVars: (keyof EnvConfig)[] = [
-    'REACT_APP_API_URL',
-    'MONGODB_URI',
-    'MONGODB_DB_NAME'
-  ];
-  
-  const missingVars = requiredVars.filter((key) => !config[key]);
-  
+  const requiredVars: (keyof EnvConfig)[] = ['REACT_APP_API_URL', 'MONGODB_URI', 'MONGODB_DB_NAME'];
+
+  const missingVars = requiredVars.filter(key => !config[key]);
+
   if (missingVars.length > 0) {
     throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
   }

@@ -11,7 +11,7 @@ export const handleApiError = (error: unknown): ApiError => {
   // Handle Axios errors
   if ((error as AxiosError).isAxiosError) {
     const axiosError = error as AxiosError;
-    
+
     // Handle network errors
     if (axiosError.code === 'ERR_NETWORK') {
       return {
@@ -23,7 +23,7 @@ export const handleApiError = (error: unknown): ApiError => {
     // Handle HTTP errors
     if (axiosError.response) {
       const { status, data } = axiosError.response;
-      
+
       // Common HTTP error statuses
       switch (status) {
         case 400:

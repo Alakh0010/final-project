@@ -26,10 +26,10 @@ export const useUserService = (): UserServiceHookResult => {
 
   const fetchUsers = useCallback(async () => {
     if (!isConnected) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       const data = await userService.getUsers();
       setUsers(data);
@@ -41,108 +41,121 @@ export const useUserService = (): UserServiceHookResult => {
     }
   }, [isConnected]);
 
-  const fetchUserById = useCallback(async (id: string): Promise<Partial<IUser> | null> => {
-    if (!isConnected) return null;
-    
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const user = await userService.getUserById(id);
-      return user;
-    } catch (err) {
-      setError(err as Error);
-      console.error(`Error fetching user ${id}:`, err);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [isConnected]);
+  const fetchUserById = useCallback(
+    async (id: string): Promise<Partial<IUser> | null> => {
+      if (!isConnected) return null;
 
-  const createUser = useCallback(async (userData: Partial<IUser>): Promise<Partial<IUser> | null> => {
-    if (!isConnected) return null;
-    
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const newUser = await userService.createUser(userData);
-      setUsers(prev => [...prev, newUser]);
-      return newUser;
-    } catch (err) {
-      setError(err as Error);
-      console.error('Error creating user:', err);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [isConnected]);
+      setLoading(true);
+      setError(null);
 
-  const updateUser = useCallback(async (id: string, userData: Partial<IUser>): Promise<Partial<IUser> | null> => {
-    if (!isConnected) return null;
-    
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const updatedUser = await userService.updateUser(id, userData);
-      
-      if (updatedUser) {
-        setUsers(prev => 
-          prev.map(user => (user._id === id ? updatedUser : user))
-        );
+      try {
+        const user = await userService.getUserById(id);
+        return user;
+      } catch (err) {
+        setError(err as Error);
+        console.error(`Error fetching user ${id}:`, err);
+        return null;
+      } finally {
+        setLoading(false);
       }
-      
-      return updatedUser;
-    } catch (err) {
-      setError(err as Error);
-      console.error(`Error updating user ${id}:`, err);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [isConnected]);
+    },
+    [isConnected]
+  );
 
-  const deleteUser = useCallback(async (id: string): Promise<boolean> => {
-    if (!isConnected) return false;
-    
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const success = await userService.deleteUser(id);
-      
-      if (success) {
-        setUsers(prev => prev.filter(user => user._id !== id));
+  const createUser = useCallback(
+    async (userData: Partial<IUser>): Promise<Partial<IUser> | null> => {
+      if (!isConnected) return null;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const newUser = await userService.createUser(userData);
+        setUsers(prev => [...prev, newUser]);
+        return newUser;
+      } catch (err) {
+        setError(err as Error);
+        console.error('Error creating user:', err);
+        return null;
+      } finally {
+        setLoading(false);
       }
-      
-      return success;
-    } catch (err) {
-      setError(err as Error);
-      console.error(`Error deleting user ${id}:`, err);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [isConnected]);
+    },
+    [isConnected]
+  );
 
-  const authenticate = useCallback(async (email: string, password: string): Promise<AuthResponse | null> => {
-    if (!isConnected) return null;
-    
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const result = await userService.authenticate(email, password);
-      return result;
-    } catch (err) {
-      setError(err as Error);
-      console.error('Authentication error:', err);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [isConnected]);
+  const updateUser = useCallback(
+    async (id: string, userData: Partial<IUser>): Promise<Partial<IUser> | null> => {
+      if (!isConnected) return null;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const updatedUser = await userService.updateUser(id, userData);
+
+        if (updatedUser) {
+          setUsers(prev => prev.map(user => (user._id === id ? updatedUser : user)));
+        }
+
+        return updatedUser;
+      } catch (err) {
+        setError(err as Error);
+        console.error(`Error updating user ${id}:`, err);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [isConnected]
+  );
+
+  const deleteUser = useCallback(
+    async (id: string): Promise<boolean> => {
+      if (!isConnected) return false;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const success = await userService.deleteUser(id);
+
+        if (success) {
+          setUsers(prev => prev.filter(user => user._id !== id));
+        }
+
+        return success;
+      } catch (err) {
+        setError(err as Error);
+        console.error(`Error deleting user ${id}:`, err);
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [isConnected]
+  );
+
+  const authenticate = useCallback(
+    async (email: string, password: string): Promise<AuthResponse | null> => {
+      if (!isConnected) return null;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const result = await userService.authenticate(email, password);
+        return result;
+      } catch (err) {
+        setError(err as Error);
+        console.error('Authentication error:', err);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [isConnected]
+  );
 
   // Load users when the database is connected
   useEffect(() => {
@@ -160,7 +173,7 @@ export const useUserService = (): UserServiceHookResult => {
     createUser,
     updateUser,
     deleteUser,
-    authenticate
+    authenticate,
   };
 };
 

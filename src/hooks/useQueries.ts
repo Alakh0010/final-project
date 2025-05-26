@@ -19,9 +19,9 @@ const useQueries = () => {
         // const response = await fetch('/api/queries');
         // const data = await response.json();
         // setQueries(data);
-        
+
         // Mock data for development
-                const mockQueries: IQuery[] = [
+        const mockQueries: IQuery[] = [
           {
             _id: '1',
             title: 'Login Issue',
@@ -32,8 +32,8 @@ const useQueries = () => {
             submittedBy: {
               _id: 'user1',
               name: 'John Doe',
-              email: 'john@example.com'
-            }
+              email: 'john@example.com',
+            },
           },
           {
             _id: '2',
@@ -45,8 +45,8 @@ const useQueries = () => {
             submittedBy: {
               _id: 'user2',
               name: 'Jane Smith',
-              email: 'jane@example.com'
-            }
+              email: 'jane@example.com',
+            },
           },
           {
             _id: '3',
@@ -58,9 +58,9 @@ const useQueries = () => {
             submittedBy: {
               _id: 'user3',
               name: 'Bob Johnson',
-              email: 'bob@example.com'
-            }
-          }
+              email: 'bob@example.com',
+            },
+          },
         ];
         setQueries(mockQueries);
       } catch (err) {
@@ -82,11 +82,9 @@ const useQueries = () => {
       //   body: JSON.stringify({ status }),
       //   headers: { 'Content-Type': 'application/json' },
       // });
-      
+
       setQueries(prevQueries =>
-        prevQueries.map(query =>
-          query._id === queryId ? { ...query, status } : query
-        )
+        prevQueries.map(query => (query._id === queryId ? { ...query, status } : query))
       );
       return true;
     } catch (err) {
@@ -99,10 +97,8 @@ const useQueries = () => {
     try {
       // TODO: Replace with actual API call
       // await fetch(`/api/queries/${queryId}`, { method: 'DELETE' });
-      
-      setQueries(prevQueries =>
-        prevQueries.filter(query => query._id !== queryId)
-      );
+
+      setQueries(prevQueries => prevQueries.filter(query => query._id !== queryId));
       return true;
     } catch (err) {
       console.error('Failed to delete query:', err);

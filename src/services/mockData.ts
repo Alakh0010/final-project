@@ -10,7 +10,7 @@ export const mockUsers: IUser[] = [
     password: 'password123',
     role: 'admin',
     createdAt: new Date('2023-01-01'),
-    updatedAt: new Date('2023-01-01')
+    updatedAt: new Date('2023-01-01'),
   },
   {
     _id: '2',
@@ -19,8 +19,8 @@ export const mockUsers: IUser[] = [
     password: 'password456',
     role: 'user',
     createdAt: new Date('2023-01-02'),
-    updatedAt: new Date('2023-01-02')
-  }
+    updatedAt: new Date('2023-01-02'),
+  },
 ];
 
 // Mock queries
@@ -38,10 +38,10 @@ export const mockQueries: IQuery[] = [
       email: 'john@example.com',
       role: 'admin',
       createdAt: new Date('2023-01-01'),
-      updatedAt: new Date('2023-01-01')
+      updatedAt: new Date('2023-01-01'),
     },
     createdAt: new Date('2023-01-01'),
-    updatedAt: new Date('2023-01-01')
+    updatedAt: new Date('2023-01-01'),
   },
   {
     _id: '2',
@@ -56,15 +56,16 @@ export const mockQueries: IQuery[] = [
       email: 'john@example.com',
       role: 'user',
       createdAt: new Date('2025-05-09'),
-      updatedAt: new Date('2025-05-09')
+      updatedAt: new Date('2025-05-09'),
     },
     createdAt: new Date('2025-05-09'),
-    updatedAt: new Date('2025-05-09')
+    updatedAt: new Date('2025-05-09'),
   },
   {
     _id: '3',
     title: 'Feature Request: Dark Mode',
-    description: 'Could you please add a dark mode option to the application? It would be much easier on the eyes when using the app at night.',
+    description:
+      'Could you please add a dark mode option to the application? It would be much easier on the eyes when using the app at night.',
     status: 'pending',
     priority: 'low',
     category: 'Feature Request',
@@ -74,15 +75,16 @@ export const mockQueries: IQuery[] = [
       email: 'jane@example.com',
       role: 'user',
       createdAt: new Date('2025-05-08'),
-      updatedAt: new Date('2025-05-08')
+      updatedAt: new Date('2025-05-08'),
     },
     createdAt: new Date('2025-05-08'),
-    updatedAt: new Date('2025-05-08')
+    updatedAt: new Date('2025-05-08'),
   },
   {
     _id: '4',
     title: 'Missing Data in Reports',
-    description: 'The monthly analytics reports are missing data from the last week of April. Can you please investigate and provide the complete data?',
+    description:
+      'The monthly analytics reports are missing data from the last week of April. Can you please investigate and provide the complete data?',
     status: 'resolved',
     priority: 'medium',
     category: 'Data Issue',
@@ -92,15 +94,16 @@ export const mockQueries: IQuery[] = [
       email: 'jane@example.com',
       role: 'user',
       createdAt: new Date('2025-05-07'),
-      updatedAt: new Date('2025-05-07')
+      updatedAt: new Date('2025-05-07'),
     },
     createdAt: new Date('2025-05-07'),
-    updatedAt: new Date('2025-05-11')
+    updatedAt: new Date('2025-05-11'),
   },
   {
     _id: '5',
     title: 'Mobile App Crashes on Startup',
-    description: 'After the latest update, the mobile app crashes immediately upon startup on my Android device. I am using a Samsung Galaxy S21 with Android 12.',
+    description:
+      'After the latest update, the mobile app crashes immediately upon startup on my Android device. I am using a Samsung Galaxy S21 with Android 12.',
     status: 'in-progress',
     priority: 'high',
     category: 'Technical Support',
@@ -110,9 +113,9 @@ export const mockQueries: IQuery[] = [
       email: 'john@example.com',
       role: 'user',
       createdAt: new Date('2025-05-06'),
-      updatedAt: new Date('2025-05-06')
+      updatedAt: new Date('2025-05-06'),
     },
     createdAt: new Date('2025-05-06'),
-    updatedAt: new Date('2025-05-10')
-  }
+    updatedAt: new Date('2025-05-10'),
+  },
 ];
