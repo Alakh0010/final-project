@@ -5,7 +5,7 @@ const connectDB = async () => {
     console.log('Attempting to connect to MongoDB...');
     
     // Always use local MongoDB for now
-    const mongoUri = 'mongodb://127.0.0.1:27017/quick-query';
+    const mongoUri = 'mongodb://localhost:27017/QuickQueryResolver';
     console.log('Connecting to local MongoDB at:', mongoUri);
 
     const conn = await mongoose.connect(mongoUri, {
